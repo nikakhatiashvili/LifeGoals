@@ -25,7 +25,6 @@ class HomeFragment : Fragment() {
 
     private lateinit var goalsAdapter: GoalsAdapter
 
-
     private val viewModel: HomeViewModel by viewModels()
 
     override fun onCreateView(
@@ -53,16 +52,16 @@ class HomeFragment : Fragment() {
         _binding = null
     }
 
-    private fun observeData(){
-        launchAndRepeatOnLifecycle{
+    private fun observeData() {
+        launchAndRepeatOnLifecycle {
             viewModel.allGoals.collect { goals ->
-                Log.wtf("asdasdas", goals.toString())
+                Log.wtf("asdasdas", goals.size.toString())
                 goalsAdapter.submitList(goals)
             }
         }
     }
 
-    private fun setupViews(){
+    private fun setupViews() {
         goalsAdapter = GoalsAdapter { action ->
             viewModel.handleAction(action)
         }

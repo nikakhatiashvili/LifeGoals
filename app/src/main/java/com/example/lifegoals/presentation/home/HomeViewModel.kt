@@ -27,9 +27,9 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
     fun addGoal(goal: GoalEntity) {
         Log.d("asdasdas", "addGoal: called ${goal}")
-
         viewModelScope.launch(Dispatchers.IO) {
             repository.addGoal(goal)
         }
@@ -39,15 +39,11 @@ class HomeViewModel @Inject constructor(
         when (action) {
             is GoalActions.OnCheckBoxClick -> {
                 viewModelScope.launch(Dispatchers.IO) {
-                    if (action.isChecked) {
-                        repository.markGoalCompleted(action.goal.goal)
-                    } else {
-                        repository.unmarkGoalCompleted(action.goal.goal)
-                    }
+                    repository.toggleGoalCompletion(action.goal.goal)
                 }
             }
-            is GoalActions.OnWholeItemClick -> {
-            }
+
+            is GoalActions.OnWholeItemClick -> {}
         }
     }
 }

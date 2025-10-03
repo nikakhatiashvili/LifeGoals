@@ -1,4 +1,4 @@
-package com.example.lifegoals.data.room.dao
+package com.example.lifegoals.dataSource.room.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -36,4 +36,9 @@ interface CompletionHistoryDao {
 
     @Query("SELECT * FROM completion_history WHERE completedAt BETWEEN :start AND :end")
     fun getHistoryBetween(start: Long, end: Long): Flow<List<CompletionHistoryEntity>>
-}
+
+    @Query("SELECT * FROM completion_history WHERE goalId = :goalId AND date(completedAt/1000, 'unixepoch', 'localtime') = date('now', 'localtime')")
+    suspend fun getTodayCompletionForGoal(goalId: Int): List<CompletionHistoryEntity>
+
+    @Query("SELECT * FROM completion_history WHERE date(completedAt/1000, 'unixepoch', 'localtime') = date('now', 'localtime')")
+    suspend fun getTodayCompletionsOnce(): List<CompletionHistoryEntity>}

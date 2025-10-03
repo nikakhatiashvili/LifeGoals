@@ -2,9 +2,9 @@ package com.example.lifegoals.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.lifegoals.data.room.dao.CompletionHistoryDao
-import com.example.lifegoals.data.room.dao.GoalDao
-import com.example.lifegoals.data.room.database.AppDatabase
+import com.example.lifegoals.dataSource.room.dao.CompletionHistoryDao
+import com.example.lifegoals.dataSource.room.dao.GoalDao
+import com.example.lifegoals.dataSource.room.database.AppDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

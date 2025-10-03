@@ -1,12 +1,7 @@
 package com.example.lifegoals.data.repository
 
-import com.example.lifegoals.data.model.CompletionHistoryEntity
-import com.example.lifegoals.data.model.GoalEntity
-import com.example.lifegoals.data.model.GoalType
-import com.example.lifegoals.data.model.GoalWithCompletion
-import com.example.lifegoals.data.model.UiStats
-import com.example.lifegoals.data.room.dao.CompletionHistoryDao
-import com.example.lifegoals.data.room.dao.GoalDao
+import com.example.lifegoals.data.model.*
+import com.example.lifegoals.dataSource.GoalLocalDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import java.time.Instant
@@ -17,30 +12,29 @@ import javax.inject.Singleton
 
 @Singleton
 class GoalRepository @Inject constructor(
-    private val goalDao: GoalDao,
-    private val historyDao: CompletionHistoryDao
+    private val local: GoalLocalDataSource
 ) {
 
-    suspend fun addGoal(goal: GoalEntity) = goalDao.insertGoal(goal)
+    suspend fun addGoal(goal: GoalEntity) = local.insertGoal(goal)
 
-    suspend fun markGoalCompleted(goal: GoalEntity) {
-        val history = CompletionHistoryEntity(
-            goalId = goal.id,
-            completedAt = System.currentTimeMillis(),
-            pointsAwarded = goal.pointsReward
-        )
-        historyDao.insertHistory(history)
-    }
+    suspend fun toggleGoalCompletion(goal: GoalEntity) {
+        val todayCompletions = local.getTodayCompletionsOnce()
+        val isCompleted = todayCompletions.any { it.goalId == goal.id }
 
-    suspend fun unmarkGoalCompleted(goal: GoalEntity) {
-        historyDao.deleteTodayCompletion(goal.id)
+        if (isCompleted) {
+            local.deleteTodayCompletion(goal.id)
+        } else {
+            val history = CompletionHistoryEntity(
+                goalId = goal.id,
+                completedAt = System.currentTimeMillis(),
+                pointsAwarded = goal.pointsReward
+            )
+            local.insertHistory(history)
+        }
     }
 
     fun getGoalsWithCompletion(): Flow<List<GoalWithCompletion>> =
-        combine(
-            goalDao.getAllGoals(),
-            historyDao.getTodayCompletions()
-        ) { goals, completions ->
+        combine(local.getAllGoals(), local.getTodayCompletions()) { goals, completions ->
             val todayCompletedIds = completions.map { it.goalId }.toSet()
 
             goals.map { goal ->
@@ -52,73 +46,74 @@ class GoalRepository @Inject constructor(
             }
         }
 
-
     fun getUiStats(): Flow<UiStats> =
-        combine(
-            goalDao.getAllGoals(),
-            historyDao.getAllHistory()
-        ) { goals, history ->
-
-            val todayStart = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toEpochSecond() * 1000
-            val tomorrowStart = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toEpochSecond() * 1000
-
-            val pointsToday = history.filter { it.completedAt in todayStart until tomorrowStart }
-                .sumOf { it.pointsAwarded }
-
-            val totalPoints = history.sumOf { it.pointsAwarded }
-
-            val dailyGoals = goals.filter { it.type == GoalType.DAILY }
-            val completedTodayIds = history
-                .filter { it.completedAt in todayStart until tomorrowStart }
-                .map { it.goalId }
-                .toSet()
-
-            val goalsCompletedToday = dailyGoals.count { it.id in completedTodayIds }
-            val allGoalsCompleted = goalsCompletedToday == dailyGoals.size && dailyGoals.isNotEmpty()
-
-            val datesWithCompletions = history
-                .map { Instant.ofEpochMilli(it.completedAt).atZone(ZoneId.systemDefault()).toLocalDate() }
-                .distinct()
-                .sorted()
-
-            val currentStreak = calculateCurrentStreak(datesWithCompletions)
-            val bestStreak = calculateBestStreak(datesWithCompletions)
-
-            val oneWeekAgo = LocalDate.now().minusDays(6)
-            val recentDailyCompletions = datesWithCompletions.filter { it >= oneWeekAgo }
-            val weeklyCompletionRate =
-                if (recentDailyCompletions.size >= 7) {
-                    val totalPossible = dailyGoals.size * 7
-                    val totalCompleted = history.filter {
-                        val date = Instant.ofEpochMilli(it.completedAt)
-                            .atZone(ZoneId.systemDefault()).toLocalDate()
-                        it.goalId in dailyGoals.map { g -> g.id } && date >= oneWeekAgo
-                    }.size
-                    if (totalPossible > 0) totalCompleted.toFloat() / totalPossible else 0f
-                } else null
-
-            val milestoneGoals = goals.filter { it.type == GoalType.MILESTONE }
-            val completedMilestones = milestoneGoals.filter { goal ->
-                history.any { it.goalId == goal.id }
-            }
-            val milestonesLeft = milestoneGoals.size - completedMilestones.size
-            val milestonePointsLeft = milestoneGoals.filterNot { it in completedMilestones }
-                .sumOf { it.pointsReward }
-
-            UiStats(
-                pointsToday = pointsToday,
-                totalPoints = totalPoints,
-                goalsCompletedToday = goalsCompletedToday,
-                totalGoalsToday = dailyGoals.size,
-                allGoalsCompleted = allGoalsCompleted,
-                currentStreak = currentStreak,
-                bestStreak = bestStreak,
-                weeklyCompletionRate = weeklyCompletionRate,
-                milestonesLeft = milestonesLeft,
-                milestonePointsLeft = milestonePointsLeft
-            )
+        combine(local.getAllGoals(), local.getAllHistory()) { goals, history ->
+            computeUiStats(goals, history)
         }
 
+    private fun computeUiStats(
+        goals: List<GoalEntity>,
+        history: List<CompletionHistoryEntity>
+    ): UiStats {
+        val todayStart = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toEpochSecond() * 1000
+        val tomorrowStart =
+            LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toEpochSecond() * 1000
+
+        val pointsToday = history.filter { it.completedAt in todayStart until tomorrowStart }
+            .sumOf { it.pointsAwarded }
+        val totalPoints = history.sumOf { it.pointsAwarded }
+
+        val dailyGoals = goals.filter { it.type == GoalType.DAILY }
+        val completedTodayIds = history
+            .filter { it.completedAt in todayStart until tomorrowStart }
+            .map { it.goalId }
+            .toSet()
+        val goalsCompletedToday = dailyGoals.count { it.id in completedTodayIds }
+        val allGoalsCompleted = goalsCompletedToday == dailyGoals.size && dailyGoals.isNotEmpty()
+
+        val datesWithCompletions = history
+            .map {
+                Instant.ofEpochMilli(it.completedAt).atZone(ZoneId.systemDefault()).toLocalDate()
+            }
+            .distinct()
+            .sorted()
+
+        val currentStreak = calculateCurrentStreak(datesWithCompletions)
+        val bestStreak = calculateBestStreak(datesWithCompletions)
+
+        val oneWeekAgo = LocalDate.now().minusDays(6)
+        val weeklyCompletionRate =
+            if (datesWithCompletions.size >= 7) {
+                val totalPossible = dailyGoals.size * 7
+                val totalCompleted = history.count {
+                    val date = Instant.ofEpochMilli(it.completedAt)
+                        .atZone(ZoneId.systemDefault()).toLocalDate()
+                    it.goalId in dailyGoals.map { g -> g.id } && date >= oneWeekAgo
+                }
+                if (totalPossible > 0) totalCompleted.toFloat() / totalPossible else 0f
+            } else null
+
+        val milestoneGoals = goals.filter { it.type == GoalType.MILESTONE }
+        val completedMilestones = milestoneGoals.filter { goal ->
+            history.any { it.goalId == goal.id }
+        }
+        val milestonesLeft = milestoneGoals.size - completedMilestones.size
+        val milestonePointsLeft = milestoneGoals.filterNot { it in completedMilestones }
+            .sumOf { it.pointsReward }
+
+        return UiStats(
+            pointsToday = pointsToday,
+            totalPoints = totalPoints,
+            goalsCompletedToday = goalsCompletedToday,
+            totalGoalsToday = dailyGoals.size,
+            allGoalsCompleted = allGoalsCompleted,
+            currentStreak = currentStreak,
+            bestStreak = bestStreak,
+            weeklyCompletionRate = weeklyCompletionRate,
+            milestonesLeft = milestonesLeft,
+            milestonePointsLeft = milestonePointsLeft
+        )
+    }
 
     private fun calculateCurrentStreak(dates: List<LocalDate>): Int {
         var streak = 0

@@ -1,11 +1,11 @@
-package com.example.lifegoals.data.room.database
+package com.example.lifegoals.dataSource.room.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.example.lifegoals.data.model.CompletionHistoryEntity
 import com.example.lifegoals.data.model.GoalEntity
-import com.example.lifegoals.data.room.dao.CompletionHistoryDao
-import com.example.lifegoals.data.room.dao.GoalDao
+import com.example.lifegoals.dataSource.room.dao.CompletionHistoryDao
+import com.example.lifegoals.dataSource.room.dao.GoalDao
 
 @Database(
     entities = [GoalEntity::class, CompletionHistoryEntity::class],

@@ -1,6 +1,7 @@
 package com.example.lifegoals.presentation
 
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -16,12 +17,12 @@ fun View.hide(){
     this.visibility = View.GONE
 }
 
-inline fun LifecycleOwner.launchAndRepeatOnLifecycle(
+inline fun Fragment.launchAndRepeatOnLifecycle(
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
     crossinline block: suspend CoroutineScope.() -> Unit
 ) {
-    lifecycleScope.launch {
-        lifecycle.repeatOnLifecycle(minActiveState) {
+    viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycle.repeatOnLifecycle(minActiveState) {
             block()
         }
     }

@@ -30,8 +30,10 @@ class GoalsAdapter(
             }
 
             binding.tvPoints.text = "points: ${goal.pointsReward}"
-            binding.cbCompleted.isChecked = item.isCompleted
 
+
+            binding.cbCompleted.setOnCheckedChangeListener(null)
+            binding.cbCompleted.isChecked = item.isCompleted
             binding.cbCompleted.setOnCheckedChangeListener { _, isChecked ->
                 onAction(GoalActions.OnCheckBoxClick(item, isChecked))
             }

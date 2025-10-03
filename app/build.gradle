@@ -67,6 +67,21 @@ dependencies {
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)
 
+    testImplementation("junit:junit:4.13.2")
+    testImplementation(libs.core.ktx)
+    testImplementation(libs.androidx.core.testing) // for InstantTaskExecutorRule
+    testImplementation(libs.kotlinx.coroutines.test) // adjust to your coroutines version
+    androidTestImplementation("androidx.room:room-testing:2.6.1")
+    implementation "org.jetbrains.kotlin:kotlin-test:2.2.20"
 
+
+    // for InstantTaskExecutorRule
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
+
+    // AndroidX Test stuff
+    androidTestImplementation(libs.androidx.junit.v130)
+    androidTestImplementation(libs.androidx.core.ktx.v150)
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
 
 }
