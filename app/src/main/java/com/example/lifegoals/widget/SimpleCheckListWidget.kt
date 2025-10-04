@@ -1,11 +1,15 @@
 package com.example.yourapp.widget
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources
+import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.GlanceTheme
+import androidx.glance.unit.ColorProvider
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.actionRunCallback
@@ -36,6 +40,9 @@ import kotlinx.coroutines.launch
 
 
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.glance.GlanceTheme
+import androidx.glance.LocalContext
 
 import androidx.glance.background
 import androidx.glance.currentState
@@ -59,6 +66,7 @@ class GoalListWidget(
             GoalListContent(goals)
         }
     }
+
     @Composable
     private fun GoalListContent(goals: List<GoalWithCompletion>) {
         Column(
@@ -67,14 +75,67 @@ class GoalListWidget(
                 .background(R.color.white)
                 .padding(12.dp)
         ) {
-            goals.forEach { goal ->
-                GoalRow(goal)
+            // Group goals in pairs (2 per row)
+            goals.chunked(2).forEach { pair ->
+                Row(
+                    modifier = GlanceModifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.Vertical.CenterVertically
+                ) {
+                    pair.forEach { goal ->
+                        GoalItem(
+                            goal = goal,
+                            modifier = GlanceModifier
+                                .defaultWeight()
+                                .padding(horizontal = 4.dp)
+                        )
+                    }
+
+                    // Fill space if odd number of goals
+                    if (pair.size == 1) {
+                        Spacer(GlanceModifier.defaultWeight())
+                    }
+                }
             }
         }
     }
+    @SuppressLint("RestrictedApi")
+    @Composable
+    private fun GoalItem(goal: GoalWithCompletion, modifier: GlanceModifier = GlanceModifier) {
+        Row(
+            modifier = modifier
+                .clickable(
+                    actionRunCallback<ToggleGoalAction>(
+                        actionParametersOf(ActionParameters.Key<Int>("goalId") to goal.goal.id)
+                    )
+                )
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.Vertical.CenterVertically
+        ) {
+            Text(
+                text = goal.goal.name.plus(" " + goal.goal.description),
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    color = ColorProvider(Color.Black)
+                ),
+                modifier = GlanceModifier.defaultWeight()
+            )
+            Spacer(GlanceModifier.width(6.dp))
 
+            Text(
+                text = if (goal.isCompleted) "☑️" else "⬜",
+                style = TextStyle(fontSize = 18.sp)
+            )
+        }
+    }
+
+
+
+    @SuppressLint("RestrictedApi")
     @Composable
     private fun GoalRow(goal: GoalWithCompletion) {
+        Log.wtf("asdasdas", goal.toString())
         Row(
             modifier = GlanceModifier
                 .fillMaxWidth()
@@ -82,10 +143,10 @@ class GoalListWidget(
             verticalAlignment = Alignment.Vertical.CenterVertically
         ) {
             Text(
-                text = goal.goal.name,
+                text = goal.goal.name.plus(" " + goal.goal.description),
                 style = TextStyle(
-                    fontSize = 18.sp,
-                    color = GlanceTheme.colors.onSurface
+                    fontSize = 14.sp,
+                    color = ColorProvider(Color.Black)
                 ),
                 modifier = GlanceModifier.defaultWeight()
             )
