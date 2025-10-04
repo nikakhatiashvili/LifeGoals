@@ -3,6 +3,7 @@ package com.example.lifegoals
 import android.app.Application
 import com.example.lifegoals.data.repository.GoalRepository
 import com.example.lifegoals.widget.InjectedRepositoryProvider
+import com.example.lifegoals.widget.WidgetUpdater
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -14,5 +15,7 @@ class LifeGoalsApp: Application() {
     override fun onCreate() {
         super.onCreate()
         InjectedRepositoryProvider.repository = repo
+        val repo = InjectedRepositoryProvider.repository
+        WidgetUpdater.observeAndUpdateWidgets(this, repo)
     }
 }
