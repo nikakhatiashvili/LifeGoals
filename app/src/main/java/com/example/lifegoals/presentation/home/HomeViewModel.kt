@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lifegoals.data.model.GoalEntity
 import com.example.lifegoals.data.model.GoalWithCompletion
+import com.example.lifegoals.data.model.UiStats
 import com.example.lifegoals.data.repository.GoalRepository
 import com.example.lifegoals.presentation.home.actions.GoalActions
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,13 +21,7 @@ class HomeViewModel @Inject constructor(
 
     val allGoals: Flow<List<GoalWithCompletion>> = repository.getGoalsWithCompletion()
 
-    init {
-        viewModelScope.launch {
-            repository.getUiStats().collect {
-                Log.d("HomeViewModel", "UiStats: $it")
-            }
-        }
-    }
+    val uiStats: Flow<UiStats> = repository.getUiStats()
 
     fun addGoal(goal: GoalEntity) {
         Log.d("asdasdas", "addGoal: called ${goal}")

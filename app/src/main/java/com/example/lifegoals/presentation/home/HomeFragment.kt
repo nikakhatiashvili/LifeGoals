@@ -7,10 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.lifegoals.data.model.UiStats
 import com.example.lifegoals.databinding.FragmentHomeBinding
 import com.example.lifegoals.presentation.home.adapter.GoalsAdapter
 import com.example.lifegoals.presentation.home.dialog.AddGoalDialogFragment
@@ -59,6 +57,27 @@ class HomeFragment : Fragment() {
                 goalsAdapter.submitList(goals)
             }
         }
+        launchAndRepeatOnLifecycle {
+            viewModel.uiStats.collect {
+                showStats(it)
+            }
+        }
+    }
+
+    private fun showStats(stats: UiStats) {
+        binding.statsCardLayout.tvPointsToday.text = "Points Today: ${stats.pointsToday}"
+        binding.statsCardLayout.tvTotalPoints.text = "Total Points: ${stats.totalPoints}"
+        binding.statsCardLayout.tvGoalsCompletedToday.text = "Goals Completed Today: ${stats.goalsCompletedToday}"
+        binding.statsCardLayout.tvWeeklyRate.text =
+            "Weekly Completion Rate: ${(stats.weeklyCompletionRate ?: 0f) * 100}%"
+        binding.statsCardLayout.tvMilestones.text =
+            "Milestones: ${stats.milestonesCompleted} out of ${stats.milestonesTotal}"
+        binding.statsCardLayout.tvMilestonePoints.text =
+            "Milestone Points: ${stats.milestonePointsCompleted} out of ${stats.milestonePointsTotal}"
+        binding.statsCardLayout.tvCurrentStreak.text =
+            "Current Streak: ${stats.currentStreak}"
+        binding.statsCardLayout.tvBestStreak.text =
+            "(Best Streak: ${stats.bestStreak})"
     }
 
     private fun setupViews() {

@@ -2,6 +2,8 @@ package com.example.lifegoals.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.lifegoals.data.repository.SystemTimeProvider
+import com.example.lifegoals.data.repository.TimeProvider
 import com.example.lifegoals.dataSource.room.dao.CompletionHistoryDao
 import com.example.lifegoals.dataSource.room.dao.GoalDao
 import com.example.lifegoals.dataSource.room.database.AppDatabase
@@ -29,4 +31,8 @@ object DatabaseModule {
     @Provides
     fun provideCompletionHistoryDao(db: AppDatabase): CompletionHistoryDao =
         db.historyDao()
+
+    @Provides
+    @Singleton
+    fun provideTimeProvider(): TimeProvider = SystemTimeProvider()
 }

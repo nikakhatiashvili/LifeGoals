@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/statsCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="?attr/colorOnSurface">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Points row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvPointsToday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="Points Today: 20"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Total Points -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="8dp">
+            <TextView
+                android:id="@+id/tvTotalPoints"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="total points3" />
+        </LinearLayout>
+
+        <!-- Goals Completed Today -->
+        <TextView
+            android:id="@+id/tvGoalsCompletedToday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Goals Completed Today: 1"
+            android:paddingBottom="8dp" />
+
+        <!-- Weekly Completion Rate -->
+        <TextView
+            android:id="@+id/tvWeeklyRate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Weekly Completion Rate: 7%"
+            android:paddingBottom="8dp"/>
+
+        <!-- Milestones completed -->
+        <TextView
+            android:id="@+id/tvMilestones"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Milestones: 2 out of 4"
+            android:paddingBottom="4dp" />
+
+        <!-- Milestone Points -->
+        <TextView
+            android:id="@+id/tvMilestonePoints"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Milestone Points: 200 out of 350"
+            android:paddingBottom="8dp" />
+
+        <!-- Current Streak -->
+        <TextView
+            android:id="@+id/tvCurrentStreak"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Current Streak: 1"
+            android:paddingBottom="4dp" />
+
+        <!-- Best Streak -->
+        <TextView
+            android:id="@+id/tvBestStreak"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Best Streak: 1" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
