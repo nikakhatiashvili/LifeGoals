@@ -105,9 +105,9 @@ class GoalDaoTest {
         repository.addGoal(milestone2)
 
         //  Complete today's tasks
-        repository.toggleGoalCompletion(daily1)
-        repository.toggleGoalCompletion(daily2)
-        repository.toggleGoalCompletion(milestone1)
+        repository.toggleGoalCompletion(daily1, )
+        repository.toggleGoalCompletion(daily2, )
+        repository.toggleGoalCompletion(milestone1, )
 
         var goals = repository.getGoalsWithCompletion().first()
 
@@ -146,9 +146,9 @@ class GoalDaoTest {
         repository.addGoal(milestone2)
 
         // --- Complete both dailies and 1 milestone yesterday ---
-        repository.toggleGoalCompletion(daily1)
-        repository.toggleGoalCompletion(daily2)
-        repository.toggleGoalCompletion(milestone1)
+        repository.toggleGoalCompletion(daily1, )
+        repository.toggleGoalCompletion(daily2, )
+        repository.toggleGoalCompletion(milestone1, )
 
         // move one day forward (simulate "yesterday" happened)
         timeProvider.advanceByDays(1)
@@ -162,7 +162,7 @@ class GoalDaoTest {
         val pointsTodayBefore = statsBefore.pointsToday
 
         // --- Uncomplete the milestone today ---
-        repository.toggleGoalCompletion(milestone1) // remove milestone completion
+        repository.toggleGoalCompletion(milestone1, ) // remove milestone completion
 
         val statsAfter = repository.getUiStats().first()
 
@@ -186,8 +186,8 @@ class GoalDaoTest {
         repository.addGoal(daily2)
 
         // --- Complete both dailies today ---
-        repository.toggleGoalCompletion(daily1)
-        repository.toggleGoalCompletion(daily2)
+        repository.toggleGoalCompletion(daily1, )
+        repository.toggleGoalCompletion(daily2, )
 
         // Verify current day points
         var statsToday = repository.getUiStats().first()
@@ -221,8 +221,8 @@ class GoalDaoTest {
         repository.addGoal(m4)
 
         // --- Complete two milestones (m1, m2) ---
-        repository.toggleGoalCompletion(m1)
-        repository.toggleGoalCompletion(m2)
+        repository.toggleGoalCompletion(m1, )
+        repository.toggleGoalCompletion(m2, )
 
         // --- Verify stats after completion ---
         var stats = repository.getUiStats().first()
@@ -234,7 +234,7 @@ class GoalDaoTest {
         val totalPointsBefore = stats.totalPoints
 
         // --- Uncomplete one milestone (m1) ---
-        repository.toggleGoalCompletion(m1)
+        repository.toggleGoalCompletion(m1, )
 
         // --- Verify stats after uncompletion ---
         stats = repository.getUiStats().first()
@@ -260,13 +260,13 @@ class GoalDaoTest {
 
         // Helper: complete all daily goals for a day
         suspend fun completeAllDailies() {
-            repository.toggleGoalCompletion(g1)
-            repository.toggleGoalCompletion(g2)
+            repository.toggleGoalCompletion(g1, )
+            repository.toggleGoalCompletion(g2, )
         }
 
         // Helper: complete only one daily goal
         suspend fun completeHalfDailies() {
-            repository.toggleGoalCompletion(g1)
+            repository.toggleGoalCompletion(g1, )
         }
 
         // --- Simulate a perfect 7-day streak ---

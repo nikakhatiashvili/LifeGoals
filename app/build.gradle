@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt.android)
+    id("org.jetbrains.kotlin.plugin.compose") version "2.2.20" // 👈 required from Kotlin 2.0+
+
 }
 
 android {
@@ -31,6 +33,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        compose true
     }
     kotlinOptions {
         jvmTarget = '11'
@@ -48,6 +51,8 @@ dependencies {
     implementation libs.material
     implementation libs.androidx.activity
     implementation libs.androidx.constraintlayout
+    implementation libs.androidx.glance.appwidget
+    implementation libs.androidx.material3
 
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
@@ -83,5 +88,9 @@ dependencies {
     androidTestImplementation(libs.androidx.core.ktx.v150)
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
+    implementation("androidx.glance:glance-appwidget:1.1.0-beta01")
+    implementation("androidx.glance:glance-material3:1.1.0-beta01")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
 
 }
